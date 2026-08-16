@@ -4,6 +4,7 @@ import { motion, useReducedMotion, useScroll, useSpring, useTransform } from 'fr
 import { useEffect, useRef, useState } from 'react';
 
 import { ProjectPreview } from '@/components/work/Previews';
+import { ProductProofFrame } from '@/components/work/ProductProof';
 import {
   ActionButton,
   ActionLink,
@@ -13,7 +14,7 @@ import {
   Tag,
 } from '@/components/ui/Primitives';
 import { useMediaQuery } from '@/lib/hooks';
-import type { Project } from '@/lib/projects';
+import type { PreviewKind, Project } from '@/lib/projects';
 import { cn } from '@/lib/utils';
 
 /**
@@ -255,7 +256,12 @@ export function ProjectStory({
 
           {/* Product window on phones and tablets, where sticky has no room. */}
           <div className="mt-8 lg:hidden">
-            <ProductWindow project={project} beat={beat} />
+            <StoryVisual
+              project={project}
+              beat={beat}
+              beatCount={beats.length}
+              onOpen={onOpen}
+            />
           </div>
 
           {/* Beats */}
@@ -316,22 +322,12 @@ export function ProjectStory({
         {/* ── Sticky product window ────────────────────────────────────── */}
         <div className="hidden min-w-0 lg:col-span-7 lg:block">
           <div className="sticky top-24">
-            <div
-              className={cn(
-                'rounded-3xl border bg-[#05070C]/60 p-3 transition-colors duration-700',
-                accentBorder[project.accent],
-              )}
-            >
-              <ProductWindow project={project} beat={beat} />
-            </div>
-            <div className="mt-3 flex items-center justify-between px-1">
-              <p className="font-mono text-2xs uppercase tracking-label text-ink-faint">
-                Interface preview · structure rebuilt for this page
-              </p>
-              <p className="font-mono text-2xs tabular-nums text-ink-faint">
-                {String(beat + 1).padStart(2, '0')} / {String(beats.length).padStart(2, '0')}
-              </p>
-            </div>
+            <StoryVisual
+              project={project}
+              beat={beat}
+              beatCount={beats.length}
+              onOpen={onOpen}
+            />
           </div>
         </div>
       </div>
@@ -339,8 +335,53 @@ export function ProjectStory({
   );
 }
 
-/** The product window itself, reacting to the active narrative beat. */
-function ProductWindow({ project, beat }: { project: Project; beat: number }) {
+/**
+ * Chooses between real product proof and a structural blueprint.
+ *
+ * Products with a real capture get the interactive frame, which brings its own
+ * chrome, caption and provenance note. Everything else keeps the wireframe
+ * window and its narrative-beat indicator, still labelled as a rebuilt preview.
+ */
+function StoryVisual({
+  project,
+  beat,
+  beatCount,
+  onOpen,
+}: {
+  project: Project;
+  beat: number;
+  beatCount: number;
+  onOpen: () => void;
+}) {
+  if (project.proof) {
+    return <ProductProofFrame project={project} onOpen={onOpen} />;
+  }
+  if (!project.preview) return null;
+
+  return (
+    <>
+      <div
+        className={cn(
+          'rounded-3xl border bg-[#05070C]/60 p-3 transition-colors duration-700',
+          accentBorder[project.accent],
+        )}
+      >
+        <BlueprintWindow kind={project.preview} beat={beat} />
+      </div>
+      <div className="mt-3 flex items-center justify-between gap-3 px-1">
+        <p className="font-mono text-2xs uppercase tracking-label text-ink-faint">
+          Interface preview · structure rebuilt for this page
+        </p>
+        <p className="font-mono text-2xs tabular-nums text-ink-faint">
+          {String(beat + 1).padStart(2, '0')} / {String(beatCount).padStart(2, '0')}
+        </p>
+      </div>
+    </>
+  );
+}
+
+/** The blueprint window itself, reacting to the active narrative beat. */
+function BlueprintWindow({ kind, beat }: { kind: PreviewKind; beat: number }) {
   return (
     <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl border border-white/[0.07] bg-[#05070C] sm:aspect-[16/11]">
       <div className="absolute inset-0 bg-grid-fine bg-grid-sm opacity-[0.3]" aria-hidden />
@@ -356,7 +397,7 @@ function ProductWindow({ project, beat }: { project: Project; beat: number }) {
       />
 
       <div className="absolute inset-0 p-3 sm:p-4">
-        <ProjectPreview kind={project.preview} />
+        <ProjectPreview kind={kind} />
       </div>
 
       {/* The active beat is reflected on the window itself. */}

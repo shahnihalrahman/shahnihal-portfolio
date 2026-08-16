@@ -15,6 +15,11 @@
  *
  * Links are intentionally sparse. A button only renders when a real,
  * verifiable URL exists.
+ *
+ * Previews follow the same rule. Daktarji and Truepost India carry `proof`:
+ * real screens captured from their real builds, used unretouched. The two
+ * entries with nothing shipped to show keep a blueprint `preview` instead, so a
+ * wireframe can never be mistaken for a product that exists.
  */
 
 export type StatusTone = 'live' | 'building' | 'iterating' | 'experimenting' | 'planned';
@@ -52,7 +57,51 @@ export type ProjectLink = {
   href: string;
 };
 
-export type PreviewKind = 'daktarji' | 'truepost' | 'commerce' | 'agents';
+/**
+ * Blueprint previews are structural wireframes drawn in markup. They now exist
+ * only for the two entries that have no shipped interface to show. Daktarji and
+ * Truepost India use real captures instead — see `ProductProof`.
+ */
+export type PreviewKind = 'commerce' | 'agents';
+
+/**
+ * A real screen captured from a real build.
+ *
+ * `width` and `height` are the true intrinsic pixel dimensions of the file, so
+ * next/image can reserve layout space and generate responsive sources without
+ * guessing. Nothing here is upscaled, redrawn or recomposed: the only edit
+ * applied to the source captures was trimming the browser scrollbar column.
+ */
+export type ProjectShot = {
+  /** Path under /public. */
+  src: string;
+  /** Gallery label. Must describe the screen that was actually captured. */
+  label: string;
+  /** Alt text. Describes what is on screen, not the file. */
+  alt: string;
+  width: number;
+  height: number;
+  /** Caption rendered beneath the frame. */
+  caption: string;
+  /** The journey stage this screen evidences, when it maps to one. */
+  stage?: string;
+  /**
+   * Where the narrow-viewport crop should anchor. A desktop capture cannot be
+   * both fully visible and legible on a 360px screen, so phones show a zoomed
+   * region instead — and the region has to follow the layout. Left-aligned
+   * screens want `left-top`; screens built around a centred hero want `top`,
+   * otherwise the crop slices the headline off. Defaults to `left-top`.
+   */
+  focus?: 'left-top' | 'top' | 'center';
+};
+
+export type ProductProof = {
+  /** What the frame's address bar shows. Never a fabricated domain. */
+  urlLabel: string;
+  /** Provenance note kept beneath the frame. */
+  note: string;
+  shots: ProjectShot[];
+};
 
 export type Project = {
   id: string;
@@ -77,7 +126,10 @@ export type Project = {
   facts: { value: string; label: string }[];
   links: ProjectLink[];
   linksNote?: string;
-  preview: PreviewKind;
+  /** Blueprint fallback. Only for products with no real interface to show yet. */
+  preview?: PreviewKind;
+  /** Real captured interfaces. Takes precedence over `preview` wherever present. */
+  proof?: ProductProof;
   accent: 'cyan' | 'blue' | 'violet';
 };
 
@@ -248,7 +300,23 @@ export const projects: Project[] = [
     links: [],
     linksNote:
       'A pilot build is deployed to a private host while clinic data is being validated. Public links will be added here once the pilot opens up.',
-    preview: 'daktarji',
+    proof: {
+      urlLabel: 'Daktarji · pilot build',
+      note: "Captured from the running pilot build. The interface still carries the product's earlier Medora branding — the rename to Daktarji is in progress.",
+      shots: [
+        {
+          src: '/work/daktarji-care-discovery.png',
+          label: 'Care discovery',
+          alt: 'Daktarji healthcare discovery platform interface — the "Start with what you need" care selection screen. General Physician is open for booking, with Pediatrics, Gynecology and Obstetrics, Dermatology, Dentistry and Orthopedics listed as coming soon.',
+          width: 1899,
+          height: 842,
+          caption: 'Care discovery — where a patient starts, before any doctor list appears.',
+          stage: 'Discover',
+          // Content is left-aligned, so the phone crop keeps the left edge.
+          focus: 'left-top',
+        },
+      ],
+    },
     accent: 'cyan',
   },
 
@@ -393,7 +461,23 @@ export const projects: Project[] = [
     links: [],
     linksNote:
       'The custom application lives in a private repository and the public domain is mid-transition from the legacy platform, so nothing is linked here yet. A link goes in the moment there is a working one to give.',
-    preview: 'truepost',
+    proof: {
+      urlLabel: 'Truepost India · custom build',
+      note: 'Captured from the custom application now serving readers, not the legacy CMS it replaced.',
+      shots: [
+        {
+          src: '/work/truepost-home.png',
+          label: 'Reader home',
+          alt: 'Truepost India custom web application interface — reader homepage with Sections, Watch and Listen, Stories, Documentaries, Videos and About navigation, the "Discover the Reality Behind India" editorial hero, and live audience panels for monthly organic viewership, Indian audience share, engagement rate and total stories.',
+          width: 1893,
+          height: 916,
+          caption: 'Reader home — the custom application that replaced the CMS front end.',
+          stage: 'Custom web application',
+          // The hero headline is centred: a left crop would cut it in half.
+          focus: 'top',
+        },
+      ],
+    },
     accent: 'blue',
   },
 

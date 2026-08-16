@@ -4,6 +4,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useEffect } from 'react';
 
 import { ProjectPreview } from '@/components/work/Previews';
+import { ProductProofViewer } from '@/components/work/ProductProof';
 import { FlowChain } from '@/components/ui/FlowChain';
 import { ActionLink, ExternalIcon, StatusPill, Tag } from '@/components/ui/Primitives';
 import { useFocusTrap, useScrollLock } from '@/lib/hooks';
@@ -134,24 +135,50 @@ export function ProjectModal({
                 </p>
               </div>
 
-              <div className="mt-8 grid gap-8 lg:grid-cols-5">
-                <div className="min-w-0 space-y-4 lg:col-span-3">
-                  {project.body.map((paragraph) => (
-                    <p key={paragraph.slice(0, 32)} className="text-[0.9375rem] leading-relaxed text-ink-soft">
-                      {paragraph}
-                    </p>
-                  ))}
-                </div>
-
-                <div className="min-w-0 lg:col-span-2">
-                  <div className="aspect-[4/3] overflow-hidden rounded-2xl border border-white/[0.07] bg-[#05070C] p-3">
-                    <ProjectPreview kind={project.preview} />
+              {/* A real screen gets the full width — it is the strongest
+                  evidence on the page, so it is not demoted to a side column.
+                  Blueprints stay beside the copy, where they belong. */}
+              {project.proof ? (
+                <>
+                  <div className="mt-8">
+                    <ProductProofViewer project={project} />
                   </div>
-                  <p className="mt-2.5 text-center font-mono text-2xs uppercase tracking-label text-ink-faint">
-                    Interface preview
-                  </p>
+                  <div className="mt-8 max-w-prose space-y-4">
+                    {project.body.map((paragraph) => (
+                      <p
+                        key={paragraph.slice(0, 32)}
+                        className="text-[0.9375rem] leading-relaxed text-ink-soft"
+                      >
+                        {paragraph}
+                      </p>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <div className="mt-8 grid gap-8 lg:grid-cols-5">
+                  <div className="min-w-0 space-y-4 lg:col-span-3">
+                    {project.body.map((paragraph) => (
+                      <p
+                        key={paragraph.slice(0, 32)}
+                        className="text-[0.9375rem] leading-relaxed text-ink-soft"
+                      >
+                        {paragraph}
+                      </p>
+                    ))}
+                  </div>
+
+                  {project.preview ? (
+                    <div className="min-w-0 lg:col-span-2">
+                      <div className="aspect-[4/3] overflow-hidden rounded-2xl border border-white/[0.07] bg-[#05070C] p-3">
+                        <ProjectPreview kind={project.preview} />
+                      </div>
+                      <p className="mt-2.5 text-center font-mono text-2xs uppercase tracking-label text-ink-faint">
+                        Interface preview
+                      </p>
+                    </div>
+                  ) : null}
                 </div>
-              </div>
+              )}
 
               <div className="mt-8 space-y-6">
                 <Block title="My role">
