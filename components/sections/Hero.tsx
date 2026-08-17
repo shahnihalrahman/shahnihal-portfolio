@@ -6,7 +6,7 @@ import { HeroVisual } from '@/components/hero/HeroVisual';
 import { Magnetic } from '@/components/ui/Magnetic';
 import { ActionButton, ArrowIcon } from '@/components/ui/Primitives';
 import { useAnchorScroll } from '@/lib/hooks';
-import { capabilityNodes, site, systemChips } from '@/lib/site';
+import { capabilityNodes, site } from '@/lib/site';
 
 const HEADLINE_PARTS = [
   { text: 'I Build ', accent: false },
@@ -103,26 +103,15 @@ export function Hero() {
               {site.location}
             </motion.p>
 
-            {/* Visual sits here in the mobile flow and floats free from lg up. */}
+            {/*
+              Visual sits here in the mobile flow and floats free from lg up.
+              On phones this is the interactive system, and it carries its own
+              labelled controls — the plain chip list that used to sit below it
+              was the same seven parts rendered twice, so it has gone.
+            */}
             <div className="mt-12 lg:mt-0">
               <HeroVisual />
             </div>
-
-            {/* System elements, listed plainly where floating chips would crowd a phone. */}
-            <motion.ul
-              {...rise(0.3)}
-              aria-label="System elements I work across"
-              className="mt-8 flex flex-wrap justify-center gap-1.5 md:hidden"
-            >
-              {systemChips.map((chip) => (
-                <li
-                  key={chip.label}
-                  className="rounded-full border border-white/[0.07] bg-white/[0.025] px-2.5 py-1 font-mono text-2xs uppercase tracking-label text-ink-muted"
-                >
-                  {chip.label}
-                </li>
-              ))}
-            </motion.ul>
           </div>
         </div>
       </div>

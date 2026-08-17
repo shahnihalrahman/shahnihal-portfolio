@@ -121,27 +121,39 @@
   }
 
   /*
-   * Vector stand-in for the shared WebGL system.
+   * Which hero visual is live. Decided entirely in CSS so it is correct on the
+   * very first paint, with no JavaScript and no swap after hydration.
    *
-   * Decided entirely in CSS so it is correct on first paint: shown on small
-   * screens, shown when the visitor prefers reduced motion, and shown again if
-   * the GPU drops the WebGL context (the renderer sets data-gl-lost).
+   *   phones             → interactive MobileSystem
+   *   md and up          → shared WebGL system
+   *   md + reduced-motion→ vector CoreStatic
+   *   md + lost context  → vector CoreStatic
+   *
+   * Phones are deliberately absent from the CoreStatic rules: MobileSystem
+   * carries its own reduced-motion path, which keeps every part visible and
+   * still tappable rather than dropping to a static picture.
    */
-  .core-fallback {
+  .mobile-system {
     display: block;
   }
   @media (min-width: 768px) {
-    .core-fallback {
+    .mobile-system {
       display: none;
     }
   }
-  @media (prefers-reduced-motion: reduce) {
+
+  .core-fallback {
+    display: none;
+  }
+  @media (min-width: 768px) and (prefers-reduced-motion: reduce) {
     .core-fallback {
       display: block;
     }
   }
-  html[data-gl-lost] .core-fallback {
-    display: block;
+  @media (min-width: 768px) {
+    html[data-gl-lost] .core-fallback {
+      display: block;
+    }
   }
 
   /* Seam between stacked sections: a hairline that reads as a system boundary. */

@@ -3,19 +3,23 @@
 import { useEffect, useState } from 'react';
 
 import { CoreStatic } from '@/components/hero/CoreStatic';
+import { MobileSystem } from '@/components/hero/MobileSystem';
 import { systemChips } from '@/lib/site';
 import { cn } from '@/lib/utils';
 
 /**
  * Hero layer for the shared product system.
  *
- * The 3D system itself is mounted once for the whole page (see SystemStage), so
- * this component only supplies what belongs to the hero specifically: the
- * floating system labels, and a vector core for the cases where WebGL is not
- * running (phones, reduced-motion, or a lost GPU context).
+ * Three distinct visuals, one per capability tier, selected in CSS so the right
+ * one is correct on first paint:
  *
- * Fallback visibility is decided in CSS via `.core-fallback`, so it is correct
- * on the very first paint with no JavaScript involved.
+ *   phones     `.mobile-system` → MobileSystem, a purpose-built interactive
+ *              scene. Rendered in normal flow rather than absolutely, because
+ *              unlike the other two it has controls beneath it that need room.
+ *   md and up  the shared WebGL system (mounted once, see SystemStage) plus the
+ *              floating labels positioned against the square box below.
+ *   fallback   `.core-fallback` → CoreStatic, for reduced-motion or a lost GPU
+ *              context from md up.
  */
 
 /**
@@ -61,21 +65,27 @@ export function HeroVisual() {
   }, []);
 
   return (
-    <div
-      className={cn(
-        'pointer-events-none relative mx-auto aspect-square w-[min(84vw,19rem)]',
-        'md:w-[min(62vw,30rem)]',
-        'lg:absolute lg:right-[-7%] lg:top-1/2 lg:z-0 lg:w-[min(56vw,50rem)] lg:-translate-y-1/2',
-        'xl:right-[-4%]',
-      )}
-    >
-      {/* Shown only when the shared WebGL system is not running. */}
-      <div className="core-fallback absolute inset-0">
-        <CoreStatic />
+    <>
+      {/* Phones: the interactive system, in flow so its controls have room. */}
+      <div className="mobile-system w-full">
+        <MobileSystem />
       </div>
 
-      {/* Floating system elements — real parts of the systems I build. */}
-      <ul className="absolute inset-0 hidden md:block">
+      <div
+        className={cn(
+          'pointer-events-none relative mx-auto hidden aspect-square',
+          'md:block md:w-[min(62vw,30rem)]',
+          'lg:absolute lg:right-[-7%] lg:top-1/2 lg:z-0 lg:w-[min(56vw,50rem)] lg:-translate-y-1/2',
+          'xl:right-[-4%]',
+        )}
+      >
+        {/* Shown only when the shared WebGL system is not running. */}
+        <div className="core-fallback absolute inset-0">
+          <CoreStatic />
+        </div>
+
+        {/* Floating system elements — real parts of the systems I build. */}
+        <ul className="absolute inset-0 hidden md:block">
         {systemChips.map((chip, i) => {
           const pos = CHIP_LAYOUT[i];
           return (
@@ -96,7 +106,8 @@ export function HeroVisual() {
             </li>
           );
         })}
-      </ul>
-    </div>
+        </ul>
+      </div>
+    </>
   );
 }

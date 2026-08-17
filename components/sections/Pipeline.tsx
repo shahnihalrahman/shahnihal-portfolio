@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from 'react';
 
 import { SectionHead } from '@/components/ui/Primitives';
 import { pipeline } from '@/lib/content';
-import { useMediaQuery } from '@/lib/hooks';
 import { microcopy, site } from '@/lib/site';
 import { cn } from '@/lib/utils';
 
@@ -17,6 +16,13 @@ import { cn } from '@/lib/utils';
  *
  * The diagram is hand-plotted SVG: crisp at any size, no images, and cheap
  * enough to animate purely with CSS transitions.
+ *
+ * Two layouts, one state machine. From lg the diagram sits in a sticky column
+ * beside the steps. Below lg it becomes a compact strip pinned to the top of the
+ * viewport, because the previous `lg:sticky` meant phones lost the visual after
+ * the first step and read the remaining seven against nothing. Both layouts are
+ * driven by the same scroll-derived `active` index, so there is one source of
+ * truth and no second timing model to keep in sync.
  */
 
 /** Node positions per stage, in a 100×100 viewBox. */
@@ -52,7 +58,12 @@ const LINKS: [number, number][] = [
   [1, 7],
 ];
 
-function AssemblyDiagram({ active }: { active: number }) {
+/**
+ * `showLabels` is off for the compact mobile strip: at ~80px wide the 3.4px
+ * node text renders under 3 real pixels and is pure noise. The stage name is
+ * spelled out beside the diagram there instead, so nothing is lost.
+ */
+function AssemblyDiagram({ active, showLabels = true }: { active: number; showLabels?: boolean }) {
   return (
     <div className="relative aspect-square w-full">
       <div
@@ -112,15 +123,17 @@ function AssemblyDiagram({ active }: { active: number }) {
                 r={n.r ?? 3.4}
                 fill={i === 0 ? '#eafcff' : isCurrent ? '#3ee0f2' : 'rgba(62,224,242,0.72)'}
               />
-              <text
-                x={n.x}
-                y={n.y + (n.y > 60 ? 9 : -6.5)}
-                textAnchor="middle"
-                className="fill-ink-muted font-mono"
-                style={{ fontSize: '3.4px', letterSpacing: '0.12em', textTransform: 'uppercase' }}
-              >
-                {pipeline[i]?.title.split(' ')[0].toUpperCase()}
-              </text>
+              {showLabels ? (
+                <text
+                  x={n.x}
+                  y={n.y + (n.y > 60 ? 9 : -6.5)}
+                  textAnchor="middle"
+                  className="fill-ink-muted font-mono"
+                  style={{ fontSize: '3.4px', letterSpacing: '0.12em', textTransform: 'uppercase' }}
+                >
+                  {pipeline[i]?.title.split(' ')[0].toUpperCase()}
+                </text>
+              ) : null}
             </g>
           );
         })}
@@ -129,9 +142,60 @@ function AssemblyDiagram({ active }: { active: number }) {
   );
 }
 
+/**
+ * MOBILE STAGE STRIP
+ *
+ * Phones previously had no pinned visual at all: the diagram was `lg:sticky`
+ * only, so it scrolled out of view within the first step and the remaining
+ * seven were read against empty space. Every active-state style was also gated
+ * behind `isLarge`, so there was no indication of which stage you were in.
+ *
+ * This pins a compact version to the top of the viewport for the whole section,
+ * so the state being described is always on screen while you scroll it. Kept
+ * deliberately short — roughly 96px — to leave the step copy room to breathe.
+ */
+function MobileStageStrip({ active, total }: { active: number; total: number }) {
+  return (
+    <div className="flex items-center gap-3.5 rounded-2xl border border-white/[0.08] bg-void/95 p-3 shadow-panel backdrop-blur-md">
+      <div className="w-[4.5rem] shrink-0 sm:w-20">
+        <AssemblyDiagram active={active} showLabels={false} />
+      </div>
+
+      <div className="min-w-0 flex-1">
+        <div className="flex items-baseline justify-between gap-3">
+          <p className="label truncate text-accent-cyan">{pipeline[active]?.title}</p>
+          <p className="shrink-0 font-mono text-2xs tabular-nums text-ink-faint">
+            {String(active + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
+          </p>
+        </div>
+
+        {/* Segmented progress: makes each transition visible as it happens. */}
+        <div className="mt-2.5 flex gap-1" aria-hidden>
+          {Array.from({ length: total }).map((_, i) => (
+            <span
+              key={i}
+              className={cn(
+                'h-1 flex-1 rounded-full transition-colors duration-500',
+                i === active
+                  ? 'bg-accent-cyan'
+                  : i < active
+                    ? 'bg-accent-cyan/35'
+                    : 'bg-white/[0.09]',
+              )}
+            />
+          ))}
+        </div>
+
+        <p className="mt-2 line-clamp-2 text-[0.75rem] leading-snug text-ink-faint">
+          {pipeline[active]?.line}
+        </p>
+      </div>
+    </div>
+  );
+}
+
 export function Pipeline() {
   const [active, setActive] = useState(0);
-  const isLarge = useMediaQuery('(min-width: 1024px)');
   const listRef = useRef<HTMLOListElement>(null);
 
   useEffect(() => {
@@ -166,10 +230,21 @@ export function Pipeline() {
         />
 
         <div className="mt-12 grid gap-10 lg:mt-16 lg:grid-cols-12 lg:gap-14">
-          {/* ── Sticky assembly ─────────────────────────────────────────── */}
-          <div className="min-w-0 lg:col-span-5">
-            <div className="lg:sticky lg:top-24">
-              <div className="mx-auto w-[min(78vw,22rem)] lg:w-full">
+          {/*
+            ── Pinned stage strip: phones and tablets only ────────────────
+            Phones put the navigation in a bottom pill, so there is nothing to
+            clear at the top and the strip pins tight. From md the nav becomes a
+            floating top pill, so the offset grows to sit under it. z-20 keeps it
+            below the nav's z-50 either way.
+          */}
+          <div className="sticky top-4 z-20 md:top-16 lg:hidden">
+            <MobileStageStrip active={active} total={pipeline.length} />
+          </div>
+
+          {/* ── Sticky assembly: unchanged from lg up ───────────────────── */}
+          <div className="hidden min-w-0 lg:col-span-5 lg:block">
+            <div className="sticky top-24">
+              <div className="w-full">
                 <AssemblyDiagram active={active} />
               </div>
               <div className="mt-4 flex items-center justify-between gap-4 border-t border-white/[0.07] pt-4">
@@ -189,20 +264,31 @@ export function Pipeline() {
                 <li
                   key={step.id}
                   data-step={i}
+                  /*
+                   * The min-height is the fix for "the state disappears before I
+                   * can read it". Each step now owns roughly half a screen of
+                   * scroll, so its stage stays active long enough to be read
+                   * instead of being passed through in a single flick. Content is
+                   * centred in that space so the box never looks empty.
+                   * Reverted to the original block layout from lg up.
+                   */
                   className={cn(
-                    'relative border-l py-6 pl-6 transition-colors duration-500 first:pt-0 sm:pl-8',
-                    on && isLarge ? 'border-accent-cyan/45' : 'border-white/[0.08]',
+                    'relative flex min-h-[52svh] flex-col justify-center border-l py-6 pl-6 transition-colors duration-500 sm:pl-8',
+                    'lg:block lg:min-h-0 lg:first:pt-0',
+                    on ? 'border-accent-cyan/45' : 'border-white/[0.08]',
                   )}
                 >
                   <span
                     aria-hidden
                     className={cn(
-                      'absolute -left-[5px] top-7 h-2.5 w-2.5 rounded-full transition-all duration-500 first:top-1',
-                      on && isLarge
+                      'absolute -left-[5px] h-2.5 w-2.5 rounded-full transition-all duration-500',
+                      // Centred with the copy on phones, original offsets from lg.
+                      'top-1/2 -translate-y-1/2 lg:translate-y-0',
+                      i === 0 ? 'lg:top-1' : 'lg:top-7',
+                      on
                         ? 'bg-accent-cyan shadow-[0_0_0_4px_rgba(62,224,242,0.12)]'
                         : 'bg-ink-faint/60',
                     )}
-                    style={i === 0 ? { top: '0.25rem' } : undefined}
                   />
                   <div className="flex flex-wrap items-baseline gap-x-3">
                     <span className="font-mono text-2xs tabular-nums text-ink-faint">
@@ -211,7 +297,7 @@ export function Pipeline() {
                     <h3
                       className={cn(
                         'text-xl font-semibold tracking-tight transition-colors duration-500 sm:text-2xl',
-                        on && isLarge ? 'text-ink' : 'text-ink-soft',
+                        on ? 'text-ink' : 'text-ink-soft',
                       )}
                     >
                       {step.title}

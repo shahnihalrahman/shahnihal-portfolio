@@ -19,6 +19,12 @@ const SystemScene = dynamic(() => import('@/components/system/SystemScene'), {
  * object carries the visitor from the first screen to the last. Stage tracking
  * runs regardless of whether WebGL is active, so the CSS fallbacks respond to
  * the story too.
+ *
+ * The `768px` gate is intentional and stays: this scene runs custom shaders, a
+ * 16–26 node lattice and a packet simulation across the full viewport, which is
+ * not a reasonable thing to hand a mid-range phone. Phones are not left with a
+ * still image either — the hero renders MobileSystem, a purpose-built
+ * interactive scene sized for touch. See components/hero/MobileSystem.tsx.
  */
 export function SystemStage() {
   const reduced = usePrefersReducedMotion();
