@@ -348,12 +348,26 @@ export function MobileSystem() {
     const act = active;
     const connected = act === null ? null : connectionsOf(act);
     for (let i = 0; i < COUNT; i += 1) {
-      const n = nodeRefs.current[i];
       const halo = haloRefs.current[i];
       if (halo) halo.setAttribute('r', (i === act ? 6.4 : 0).toFixed(2));
+
+      // Spoke and radius are updated here too, so a selection looks the same
+      // with motion disabled as it does with the loop running. Without this the
+      // reduced-motion path dimmed nodes but left the core spokes flat.
+      const spoke = spokeRefs.current[i];
+      if (spoke) {
+        const lit = act === null ? 0.3 : i === act ? 0.85 : connected?.includes(i) ? 0.4 : 0.08;
+        spoke.setAttribute('opacity', lit.toFixed(3));
+      }
+
+      const n = nodeRefs.current[i];
       if (!n) continue;
       const on = act === null || i === act || connected?.includes(i);
       n.setAttribute('opacity', on ? '1' : '0.3');
+      n.setAttribute(
+        'r',
+        (act === null ? 2.2 : i === act ? 3.4 : connected?.includes(i) ? 2.6 : 1.9).toFixed(2),
+      );
     }
     RELATIONS.forEach(([x, y], i) => {
       const line = relRefs.current[i];
@@ -364,7 +378,7 @@ export function MobileSystem() {
   }, [active]);
 
   const initial = Array.from({ length: COUNT }, (_, i) => nodeAt(i, 0));
-  const activeChip = active === null ? null : systemChips[active];
+  const activeChip = active === null ? null : (systemChips[active] ?? null);
 
   return (
     <div ref={hostRef} className="pointer-events-auto relative w-full">
@@ -516,7 +530,13 @@ export function MobileSystem() {
               ))}
             </g>
 
-            {/* Touch targets, sized for fingers rather than for the dot. */}
+            {/*
+              Touch targets, sized for fingers rather than for the dot. r=9 in a
+              100-unit viewBox is ~24px radius against the 264px box a 360px
+              screen gives, so ~48px across — clear of the 44px minimum. Adjacent
+              nodes sit ~28 units apart, so these do not overlap and cannot cause
+              a mis-tap.
+            */}
             <g fill="transparent" style={{ cursor: 'pointer', pointerEvents: 'all' }}>
               {initial.map((p, i) => (
                 <circle
@@ -526,13 +546,55 @@ export function MobileSystem() {
                   }}
                   cx={p.x}
                   cy={p.y}
-                  r="8"
+                  r="9"
                   onClick={() => onNodeClick(i)}
                 />
               ))}
             </g>
           </g>
         </svg>
+      </div>
+
+      {/*
+        SELECTED CAPABILITY — ABOVE THE CHIPS
+        This sits between the system and the chip row on purpose. When it lived
+        below the chips it read as though it belonged to whatever followed it,
+        and on a narrow screen the chip row wrapping to two lines pushed it into
+        the process strip beneath. Reading order is now:
+        system → what you selected → the things you can select.
+
+        The reserved min-height is what stops the chips shifting under a finger
+        as hints of different lengths swap in.
+      */}
+      {/*
+        `justify-center` matters: with only a reserved height, short hints sit at
+        the top of the box and leave an uneven gap above the chips that changes
+        per selection. Centring keeps the spacing symmetrical whatever the
+        content length, so switching parts reads as stable.
+      */}
+      <div
+        aria-live="polite"
+        className="mx-auto mt-5 flex min-h-[4rem] max-w-[19rem] flex-col justify-center px-2 text-center"
+      >
+        {activeChip ? (
+          <>
+            <p className="text-[0.8125rem] leading-snug text-ink-soft">
+              <span className="font-medium text-accent-cyan">{activeChip.label}</span>
+              <span className="text-ink-faint"> · </span>
+              {activeChip.hint}
+            </p>
+            {/* Renders itself the moment a real sentence exists in lib/site.ts. */}
+            {activeChip.detail ? (
+              <p className="mt-2 text-[0.8125rem] leading-relaxed text-ink-faint">
+                {activeChip.detail}
+              </p>
+            ) : null}
+          </>
+        ) : (
+          <p className="text-[0.8125rem] leading-snug text-ink-faint">
+            Drag to rotate the system. Tap any part to see what it connects to.
+          </p>
+        )}
       </div>
 
       {/*
@@ -543,7 +605,7 @@ export function MobileSystem() {
       */}
       <ul
         aria-label="System elements I work across"
-        className="mt-6 flex flex-wrap justify-center gap-1.5"
+        className="flex flex-wrap justify-center gap-1.5"
       >
         {systemChips.map((chip, i) => {
           const on = active === i;
@@ -569,28 +631,6 @@ export function MobileSystem() {
           );
         })}
       </ul>
-
-      {/*
-        One label region, in a fixed position. Labels are never drawn beside the
-        orbiting dots, because rotating text collides with itself — this cannot
-        overlap by construction. Reserved height keeps it from shifting layout.
-      */}
-      <p
-        aria-live="polite"
-        className="mx-auto mt-3 min-h-[2.5rem] max-w-[17rem] text-center text-[0.8125rem] leading-snug text-ink-soft"
-      >
-        {activeChip ? (
-          <>
-            <span className="text-accent-cyan">{activeChip.label}</span>
-            <span className="text-ink-faint"> · </span>
-            {activeChip.hint}
-          </>
-        ) : (
-          <span className="text-ink-faint">
-            Drag to rotate the system. Tap any part to see what it connects to.
-          </span>
-        )}
-      </p>
     </div>
   );
 }

@@ -30,26 +30,20 @@ import { cn } from '@/lib/utils';
  *   - Motion is opt-out: `prefers-reduced-motion` and coarse pointers get a
  *     completely still frame carrying identical information.
  *
- * Layout note: on phones a 2.25:1 desktop capture would be ~160px tall and
- * unreadable, so the frame switches to a taller ratio and anchors the crop to
- * the top-left where the meaningful UI sits. The uncropped screen is always one
- * tap away in the modal, which is where full-size inspection happens.
+ * Layout note: the frame adopts each capture's own aspect ratio at every
+ * breakpoint, so the complete interface is visible everywhere and no part of the
+ * product is ever cropped away. On a phone that makes a 2.25:1 desktop capture
+ * short — roughly 140px tall inside a 360px viewport — which is simply the cost
+ * of showing all of a wide screen at that width. Completeness was chosen over
+ * apparent size, and the modal carries a full-size inspection mode for reading
+ * detail. An earlier version filled a taller mobile frame with `object-cover`
+ * and lost the sides, which on Truepost cut its centred hero headline in half.
  */
 
 const accentChip = {
   cyan: 'border-accent-cyan/25 bg-accent-cyan/[0.07] text-accent-cyan',
   blue: 'border-accent-blue/25 bg-accent-blue/[0.07] text-accent-blue',
   violet: 'border-accent-violet/25 bg-accent-violet/[0.07] text-accent-violet',
-} as const;
-
-/**
- * Narrow-viewport crop anchor. At `lg` the frame adopts the capture's true
- * aspect ratio, so the crop stops applying and the whole screen is visible.
- */
-const focusClass = {
-  'left-top': 'object-left-top',
-  top: 'object-top',
-  center: 'object-center',
 } as const;
 
 type Accent = Project['accent'];
@@ -267,8 +261,20 @@ export function ProductProofFrame({
             aria-label={`${project.name} — open full case detail with the ${shot.label} interface at full size`}
             className="group/shot relative block w-full cursor-zoom-in overflow-hidden bg-[#05070C]"
           >
+            {/*
+              The frame takes the capture's own aspect ratio at every breakpoint,
+              so the whole screen is visible everywhere and there is no crop to
+              anchor. This replaces a taller mobile frame with `object-cover`,
+              which filled the height by slicing the sides off — on Truepost that
+              cut the centred hero headline in half.
+
+              Because the box and the image share a ratio, `contain` letterboxes
+              nothing: the image spans the full frame width at its natural
+              height. That width is the maximum available, so these captures are
+              as large as they can be while staying complete.
+            */}
             <span
-              className="relative block w-full aspect-[4/5] sm:aspect-[16/10] lg:aspect-[var(--shot-ar)]"
+              className="relative block w-full aspect-[var(--shot-ar)]"
               style={{ ['--shot-ar' as string]: `${shot.width} / ${shot.height}` } as React.CSSProperties}
             >
               <Image
@@ -279,8 +285,7 @@ export function ProductProofFrame({
                 quality={92}
                 loading="lazy"
                 className={cn(
-                  'object-cover transition-transform duration-[900ms] ease-premium lg:object-center',
-                  focusClass[shot.focus ?? 'left-top'],
+                  'object-contain transition-transform duration-[900ms] ease-premium',
                   hovered && !reduced ? 'scale-[1.035]' : 'scale-100',
                 )}
               />

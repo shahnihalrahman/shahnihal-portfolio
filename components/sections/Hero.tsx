@@ -32,7 +32,13 @@ export function Hero() {
       id="home"
       data-stage="hero"
       aria-label="Introduction"
-      className="relative isolate flex min-h-[100svh] flex-col justify-center overflow-hidden pb-40 pt-32 md:pb-44 lg:pb-36 lg:pt-28"
+      /*
+       * The mobile bottom padding used to reserve room for the absolutely
+       * positioned capability strip. That strip is in normal flow on phones now
+       * (see below), so it occupies real space and the reservation is gone.
+       * md and up keep the original values exactly.
+       */
+      className="relative isolate flex min-h-[100svh] flex-col justify-center overflow-hidden pb-12 pt-32 md:pb-44 lg:pb-36 lg:pt-28"
     >
       <div className="shell relative w-full">
         {/* This wrapper is the positioning context the floating visual anchors to. */}
@@ -116,10 +122,18 @@ export function Hero() {
         </div>
       </div>
 
-      {/* ── Capability strip ─────────────────────────────────────────── */}
+      {/*
+        ── Capability strip ───────────────────────────────────────────
+        Absolute from md up, exactly as before. In normal flow on phones,
+        because absolute positioning cannot be made safe here: the strip
+        stacks vertically below md and runs 191-229px tall at 360px, while
+        `pb-40` only reserved 160px. Being out of flow, it overlapped the
+        chip row above it and nothing pushed back. In flow it cannot collide,
+        at any width or content length, without needing a magic number.
+      */}
       <motion.div
         {...rise(0.52)}
-        className="shell pointer-events-none absolute inset-x-0 bottom-0 z-10 pb-10 md:pb-12"
+        className="shell pointer-events-none relative z-10 mt-14 md:absolute md:inset-x-0 md:bottom-0 md:mt-0 md:pb-12"
       >
         <div className="hairline mb-5 w-full" />
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">

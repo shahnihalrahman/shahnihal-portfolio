@@ -89,8 +89,24 @@ export const microcopy = {
 /** Hero capability nodes. */
 export const capabilityNodes = ['Build', 'Design', 'Automate', 'Deploy', 'Optimize'] as const;
 
+export type SystemChip = {
+  label: string;
+  hint: string;
+  /**
+   * Optional longer explanation. On phones this renders above the chip row when
+   * the part is selected, so a selection can carry a full sentence rather than
+   * just a fragment.
+   *
+   * Left unset on purpose. This file's truth rule is that copy is supplied, not
+   * generated, and writing claims about how Shahnihal works would break it. Add
+   * a real sentence to any entry below and the mobile system renders it with no
+   * further changes.
+   */
+  detail?: string;
+};
+
 /** Floating system elements around the hero core. */
-export const systemChips = [
+export const systemChips: readonly SystemChip[] = [
   { label: 'API', hint: 'Route handlers & callable endpoints' },
   { label: 'AI', hint: 'Assisted build, debug & docs' },
   { label: 'Database', hint: 'Firestore & Postgres' },
@@ -98,4 +114,4 @@ export const systemChips = [
   { label: 'Automation', hint: 'Triggers & scheduled jobs' },
   { label: 'Analytics', hint: 'GA4, Search Console, product data' },
   { label: 'Deployment', hint: 'Vercel & Firebase App Hosting' },
-] as const;
+];

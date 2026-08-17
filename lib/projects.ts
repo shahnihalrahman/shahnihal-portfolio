@@ -85,14 +85,6 @@ export type ProjectShot = {
   caption: string;
   /** The journey stage this screen evidences, when it maps to one. */
   stage?: string;
-  /**
-   * Where the narrow-viewport crop should anchor. A desktop capture cannot be
-   * both fully visible and legible on a 360px screen, so phones show a zoomed
-   * region instead — and the region has to follow the layout. Left-aligned
-   * screens want `left-top`; screens built around a centred hero want `top`,
-   * otherwise the crop slices the headline off. Defaults to `left-top`.
-   */
-  focus?: 'left-top' | 'top' | 'center';
 };
 
 export type ProductProof = {
@@ -312,8 +304,6 @@ export const projects: Project[] = [
           height: 842,
           caption: 'Care discovery — where a patient starts, before any doctor list appears.',
           stage: 'Discover',
-          // Content is left-aligned, so the phone crop keeps the left edge.
-          focus: 'left-top',
         },
       ],
     },
@@ -473,8 +463,6 @@ export const projects: Project[] = [
           height: 916,
           caption: 'Reader home — the custom application that replaced the CMS front end.',
           stage: 'Custom web application',
-          // The hero headline is centred: a left crop would cut it in half.
-          focus: 'top',
         },
       ],
     },
