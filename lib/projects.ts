@@ -10,15 +10,21 @@
  * environment, so nothing is claimed as built. Its stack is labelled as
  * planned and every system is explicitly marked Planned.
  *
- * Applied AI Experiments: described as practices and experiments, not as
- * shipped products.
+ * Applied AI Products: the AI GEO platform and the influencer-marketing agent
+ * are real products, but neither repository was available in this environment.
+ * Their capabilities are recorded as described by their builder, and their
+ * stacks carry `stackSource: 'declared'`, which renders a badge saying exactly
+ * that. Nothing about their technology is guessed to fill a gap.
+ *
+ * AI-assisted building — the models and editors used to build everything else —
+ * is a practice rather than a product, and is listed as such.
  *
  * Links are intentionally sparse. A button only renders when a real,
  * verifiable URL exists.
  *
  * Previews follow the same rule. Daktarji and Truepost India carry `proof`:
- * real screens captured from their real builds, used unretouched. The two
- * entries with nothing shipped to show keep a blueprint `preview` instead, so a
+ * real screens captured from their real builds, used unretouched. Entries with
+ * no shipped interface to show keep a blueprint `preview` instead, so a
  * wireframe can never be mistaken for a product that exists.
  */
 
@@ -50,6 +56,12 @@ export type TechGroup = {
 export type FlowNode = {
   label: string;
   state?: SystemState;
+  /**
+   * Optional qualifier rendered under the node by `FlowChain`. Used to mark the
+   * stages of an agentic workflow that still pass through a human, so a flow
+   * diagram can never imply more autonomy than is actually implemented.
+   */
+  note?: string;
 };
 
 export type ProjectLink = {
@@ -62,7 +74,7 @@ export type ProjectLink = {
  * only for the two entries that have no shipped interface to show. Daktarji and
  * Truepost India use real captures instead — see `ProductProof`.
  */
-export type PreviewKind = 'commerce' | 'agents';
+export type PreviewKind = 'commerce' | 'agents' | 'geo' | 'influencer';
 
 /**
  * A real screen captured from a real build.
@@ -113,7 +125,16 @@ export type Project = {
   journey?: { title: string; nodes: FlowNode[] };
   architecture: { title: string; nodes: FlowNode[] };
   tech: TechGroup[];
-  stackSource: 'repository' | 'planned' | 'practice';
+  /**
+   * Where the technology list came from.
+   *   repository — read out of the actual codebase.
+   *   planned    — intended stack, nothing claimed as shipped.
+   *   practice   — tools and methods rather than a product stack.
+   *   declared   — stated by the builder, not yet verified against a repository.
+   *                Used where a product exists but its code is not available in
+   *                this environment, so the list is honest about its own source.
+   */
+  stackSource: 'repository' | 'planned' | 'practice' | 'declared';
   stackNote: string;
   aiLayer: string[];
   facts: { value: string; label: string }[];
@@ -450,9 +471,9 @@ export const projects: Project[] = [
       { value: '24', label: 'Versioned database migrations' },
       { value: '12+', label: 'Admin modules built for editors' },
     ],
-    links: [],
+    links: [{ label: 'Live Site', href: 'https://truepostin.com' }],
     linksNote:
-      'The custom application lives in a private repository and the public domain is mid-transition from the legacy platform, so nothing is linked here yet. A link goes in the moment there is a working one to give.',
+      'The platform is live at truepostin.com. The application code stays in a private repository, so the build itself is represented here by captures rather than a repo link.',
     proof: {
       urlLabel: 'Truepost India · custom build',
       note: 'Captured from the custom application now serving readers, not the legacy CMS it replaced.',
@@ -542,18 +563,18 @@ export const projects: Project[] = [
   {
     id: 'applied-ai',
     index: '04',
-    name: 'Applied AI Experiments',
-    category: 'AI Agents · Workflow Automation · Applied AI',
-    tagline: 'I use AI as a practical layer for building, not as a chatbot tab.',
+    name: 'Applied AI Products',
+    category: 'Applied AI · Agentic Systems · Workflow Automation',
+    tagline: 'Practical AI products built around real business problems.',
     problem:
       'AI tooling is easy to talk about and easy to misuse. The useful question is which parts of real work it can actually take over, and which parts must stay a human decision.',
-    status: { label: 'Ongoing · Experimenting', tone: 'experimenting' },
+    status: { label: 'Applied · In Active Development', tone: 'building' },
     summary:
-      'I use AI as a practical layer for building, automating, researching and improving digital workflows — not simply as a chatbot.',
+      "Real systems I've built to solve practical problems — an AI search-visibility platform and an agentic influencer-marketing system — alongside the AI-assisted process behind everything else on this page.",
     body: [
-      'This is not a research lab and it is not presented as one. It is a running set of experiments where AI is wired into real work: agents that do a defined job, automations that remove a repeated step, and assisted development that shortens the distance between a decision and working code.',
+      'This is where AI stops being a tab I keep open and starts being something I ship. Two products carry it: an AI GEO platform that examines how brands are represented inside generative search, and an influencer-marketing agent that takes a campaign brief from creator discovery through to a qualified conversation. Both have their own cards below.',
       'The pattern that keeps proving useful is boring and effective — a trigger, an agent with a narrow brief, a small set of tools, real data, and a concrete action at the end. Anything vaguer than that tends not to survive contact with real use.',
-      'The judgement stays human. AI drafts, suggests and accelerates; what ships is a decision I make and own.',
+      'The third strand is the build process itself: Claude, ChatGPT, Gemini, Cursor and Kiro used as working instruments across implementation, debugging and documentation. The judgement stays human. AI drafts, suggests and accelerates; what ships is a decision I make and own.',
     ],
     role: ['Applied AI', 'Automation Design', 'Workflow Engineering'],
     areas: [
@@ -600,7 +621,7 @@ export const projects: Project[] = [
     ],
     stackSource: 'practice',
     stackNote:
-      'These are practices and experiments, not products. Listed as such on purpose.',
+      'Models and build environments rather than a product stack. The two products below carry their own technology lists.',
     aiLayer: ['Claude', 'ChatGPT', 'Gemini', 'Cursor', 'Kiro'],
     facts: [
       { value: 'Applied', label: 'Not research, not theory' },
@@ -609,6 +630,186 @@ export const projects: Project[] = [
     links: [],
     preview: 'agents',
     accent: 'cyan',
+  },
+
+  /* ─────────────────────────────  PROJECT 05  ───────────────────────────── */
+  {
+    id: 'ai-geo',
+    index: '05',
+    name: 'AI GEO Platform',
+    category: 'Generative Engine Optimization · AI Search · SEO',
+    tagline: 'SEO asks how a search engine ranks you. GEO asks how an AI describes you.',
+    problem:
+      'When someone asks ChatGPT or Gemini for a recommendation, the answer is generated rather than ranked. A business has no obvious way to see how it is being characterised in that answer, which competitors are named beside it, or whether it appears at all.',
+    status: { label: 'In Development', tone: 'building' },
+    summary:
+      'A platform designed to help businesses improve how their content and brand are discovered and surfaced by generative AI systems such as ChatGPT and Gemini.',
+    body: [
+      'Generative Engine Optimization is the AI-search counterpart to SEO. Where SEO is concerned with how a search engine ranks a page, GEO is concerned with how an AI system discovers, evaluates and surfaces information while composing an answer — which sources it leans on, how a brand gets described, and who gets mentioned alongside it. The concept is familiar; the surface being optimised for is not.',
+      'The platform works by interrogation rather than guesswork. It runs prompts against AI models, captures how a brand, product or service is currently represented in the responses, and does the same for competitors so the two can be compared directly. From that comparison it identifies where a business is absent, thinly described or mischaracterised.',
+      'The output is a set of specific areas worth improving in content and positioning, expressed as actionable recommendations. Because every finding starts from a prompt that can be run again, the same checks can be repeated later to track how visibility inside AI models shifts over time rather than assuming it did.',
+    ],
+    role: [
+      'Product Concept',
+      'Product Design',
+      'AI-Assisted Development',
+      'Web Application Development',
+      'Testing',
+    ],
+    areas: [
+      { label: 'Prompt testing against AI models', state: 'built' },
+      { label: 'Brand representation analysis', state: 'built' },
+      { label: 'Competitor visibility & positioning', state: 'built' },
+      { label: 'Competing response comparison', state: 'built' },
+      { label: 'AI-search presence gaps', state: 'built' },
+      { label: 'Content & positioning suggestions', state: 'built' },
+      { label: 'Actionable recommendations', state: 'built' },
+      { label: 'Visibility tracking over time', state: 'built' },
+    ],
+    journey: {
+      title: 'Product workflow',
+      nodes: [
+        { label: 'Prompt Testing' },
+        { label: 'AI Response Analysis' },
+        { label: 'Competitor Analysis' },
+        { label: 'Visibility Gaps' },
+        { label: 'Recommendations' },
+        { label: 'Optimization' },
+        { label: 'Re-test' },
+      ],
+    },
+    architecture: {
+      title: 'How a single test runs',
+      nodes: [
+        { label: 'Prompt' },
+        { label: 'AI model' },
+        { label: 'Response' },
+        { label: 'Competitor set' },
+        { label: 'Gap detection' },
+        { label: 'Recommendation' },
+      ],
+    },
+    tech: [
+      {
+        label: 'AI systems tested against',
+        items: ['ChatGPT', 'Gemini', 'Other LLMs'],
+      },
+      {
+        label: 'Product surface',
+        items: ['Web application'],
+      },
+      {
+        label: 'Build approach',
+        items: ['AI-assisted development'],
+      },
+    ],
+    stackSource: 'declared',
+    stackNote:
+      'Declared rather than read from a repository. The codebase was not available in this environment, so this lists only what the product is known to work with — the models it tests against, and the fact that it is a web application. The framework and data layer get filled in from the repository the same way Daktarji and Truepost were, rather than guessed at now.',
+    aiLayer: ['ChatGPT', 'Gemini', 'Other LLMs', 'AI-assisted implementation'],
+    facts: [
+      { value: 'GEO', label: 'Optimising for generated answers, not blue links' },
+      { value: '0', label: 'Guarantees made about AI rankings or citations' },
+    ],
+    links: [],
+    linksNote:
+      'Helps identify opportunities to improve visibility and representation across AI-generated search experiences. It does not promise rankings, placement or citations inside AI answers — no tool honestly can. Nothing is linked here yet; a link goes in when there is a public one to give.',
+    preview: 'geo',
+    accent: 'violet',
+  },
+
+  /* ─────────────────────────────  PROJECT 06  ───────────────────────────── */
+  {
+    id: 'ai-influencer-agent',
+    index: '06',
+    name: 'AI Influencer Marketing Agent',
+    category: 'Agentic AI · Marketing Automation · Workflow Automation',
+    tagline: 'A campaign brief goes in. A qualified creator conversation comes out.',
+    problem:
+      'Influencer marketing runs on manual searching, spreadsheet shortlists and copy-pasted outreach. The matching is subjective, the work is repetitive, and most of the follow-up never happens.',
+    status: { label: 'In Development', tone: 'building' },
+    summary:
+      'An agentic AI system designed to automate the influencer-marketing workflow from identifying suitable creators to outreach and communication.',
+    body: [
+      'This is an agent rather than a chatbot. It is handed a business and a campaign brief and works a sequence from there: find candidate creators, analyse them against what the campaign actually asks for, score the fit, and shortlist the strongest matches. Each stage feeds the next instead of waiting for a prompt.',
+      'Outreach is the part that usually decays into a template. Here the message is generated against the specific creator and the specific campaign, the conversation is opened, and follow-ups are handled rather than forgotten — carrying a thread far enough to establish whether there is genuine interest before it reaches me.',
+      'It is deliberately not described as fully autonomous. The stages that commit something on my behalf — sending outreach, and continuing a live conversation — are marked human-in-the-loop in the workflow, because that is how the system is actually operated today.',
+    ],
+    role: [
+      'Product Concept',
+      'Agentic Workflow Design',
+      'AI-Assisted Development',
+      'Automation',
+      'Web Application',
+    ],
+    areas: [
+      { label: 'Campaign brief understanding', state: 'built' },
+      { label: 'Creator discovery', state: 'built' },
+      { label: 'Creator analysis against brief', state: 'built' },
+      { label: 'Relevance & fit assessment', state: 'built' },
+      { label: 'Best-match shortlisting', state: 'built' },
+      { label: 'Personalised outreach generation', state: 'built' },
+      { label: 'Conversation initiation', state: 'built' },
+      { label: 'Follow-up handling', state: 'built' },
+      { label: 'Qualification hand-off', state: 'built' },
+    ],
+    journey: {
+      title: 'Core workflow',
+      nodes: [
+        { label: 'Campaign Brief' },
+        { label: 'Creator Discovery' },
+        { label: 'Creator Analysis' },
+        { label: 'Best-Match Scoring' },
+        { label: 'Personalised Outreach' },
+        { label: 'Conversation' },
+        { label: 'Follow-up' },
+        { label: 'Qualified Influencer' },
+      ],
+    },
+    architecture: {
+      title: 'The agent loop',
+      nodes: [
+        { label: 'Business / brief' },
+        { label: 'Agent' },
+        { label: 'Creator data' },
+        { label: 'Fit scoring' },
+        { label: 'Outreach', note: 'Human-in-the-loop' },
+        { label: 'Conversation', note: 'Human-in-the-loop' },
+        { label: 'Qualified influencer' },
+      ],
+    },
+    tech: [
+      {
+        label: 'Agent layer',
+        items: ['Agentic workflow', 'Campaign-brief reasoning', 'Fit scoring'],
+      },
+      {
+        label: 'Product surface',
+        items: ['Web application'],
+      },
+      {
+        label: 'Build approach',
+        items: ['AI-assisted development', 'Workflow automation'],
+      },
+    ],
+    stackSource: 'declared',
+    stackNote:
+      'Declared rather than read from a repository. The codebase was not available in this environment, so the list stays at the level that is actually known — the agent stages, and that it is operated through a web application. Models, data sources and platform integrations are left off until they can be confirmed from the repository.',
+    aiLayer: [
+      'Agentic workflow',
+      'Creator analysis',
+      'Outreach generation',
+      'AI-assisted implementation',
+    ],
+    facts: [
+      { value: 'Agentic', label: 'A working sequence, not a chat window' },
+      { value: 'Human', label: 'Outreach and live conversation stay supervised' },
+    ],
+    links: [],
+    linksNote:
+      'An internal system rather than a public product, so there is nothing to link yet. The scope above describes what runs today, and the stages that still pass through me are marked human-in-the-loop rather than presented as autonomous.',
+    preview: 'influencer',
+    accent: 'blue',
   },
 ];
 
@@ -620,7 +821,7 @@ export const projects: Project[] = [
 export type NowItem = {
   name: string;
   context: string;
-  state: 'Building' | 'Iterating' | 'Experimenting';
+  state: 'Building' | 'Iterating';
   projectId?: string;
 };
 
@@ -632,11 +833,12 @@ export const currentlyBuilding: NowItem[] = [
     state: 'Building',
     projectId: 'commerce',
   },
+  { name: 'AI GEO Platform', context: 'AI Search', state: 'Building', projectId: 'ai-geo' },
   {
-    name: 'AI Agents & Automation',
-    context: 'Applied AI',
-    state: 'Experimenting',
-    projectId: 'applied-ai',
+    name: 'AI Influencer Marketing Agent',
+    context: 'Agentic AI',
+    state: 'Building',
+    projectId: 'ai-influencer-agent',
   },
   { name: 'Truepost India', context: 'Media Platform', state: 'Iterating', projectId: 'truepost' },
 ];

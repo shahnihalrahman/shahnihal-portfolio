@@ -31,7 +31,7 @@ export function Work() {
               Things I&rsquo;ve <span className="text-gradient">Actually Built</span>
             </>
           }
-          lede="Two of these are real codebases, and the screens shown are captured from the real builds — the technology on each was read out of the repository, not recalled from memory. One is still in development and says so. One is a set of practices rather than a product."
+          lede="Web products first, then the applied AI products. Daktarji and Truepost are real codebases and the screens shown are captured from the real builds, with the technology read out of the repository rather than recalled from memory. The rest say plainly where they are: what is still in development, which stacks have not been read from a repository yet, and which stages of an AI workflow still pass through a human."
         />
 
         <div className="mt-14 space-y-16 lg:mt-20 lg:space-y-24">

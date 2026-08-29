@@ -35,8 +35,9 @@ export const site = {
    * Leave them empty and they stay hidden — no placeholder profiles.
    */
   social: {
-    /** Add the profile URL and the button appears. */
-    linkedin: '',
+    /** Supplied by Shahnihal. LinkedIn answers 999 to automated requests, so it
+     *  is unverifiable by script — confirmed by its owner instead. */
+    linkedin: 'https://www.linkedin.com/in/shahnihalrahman',
     /** Verified reachable (HTTP 200) at build time. */
     github: 'https://github.com/shahnihalrahman',
   },

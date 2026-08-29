@@ -8,7 +8,6 @@ import { cn } from '@/lib/utils';
 const stateTone: Record<string, Tone> = {
   Building: 'building',
   Iterating: 'iterating',
-  Experimenting: 'experimenting',
 };
 
 /**

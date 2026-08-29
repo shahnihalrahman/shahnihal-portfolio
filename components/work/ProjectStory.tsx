@@ -64,6 +64,13 @@ function StackBadge({ source }: { source: Project['stackSource'] }) {
       </span>
     );
   }
+  if (source === 'declared') {
+    return (
+      <span className="inline-flex items-center rounded-md border border-dashed border-white/[0.14] px-2 py-1 font-mono text-2xs uppercase tracking-label text-ink-muted">
+        Stack not yet read from repo
+      </span>
+    );
+  }
   return (
     <span className="inline-flex items-center rounded-md border border-white/[0.08] px-2 py-1 font-mono text-2xs uppercase tracking-label text-ink-muted">
       Practices, not products
