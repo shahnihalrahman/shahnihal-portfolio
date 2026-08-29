@@ -1,3 +1,5 @@
+import Image from 'next/image';
+
 import { SectionHead } from '@/components/ui/Primitives';
 import { Reveal } from '@/components/ui/Reveal';
 import { about, education, profileCard } from '@/lib/content';
@@ -62,10 +64,33 @@ export function About() {
             </Reveal>
           </div>
 
-          {/* ── Profile card ───────────────────────────────────────── */}
+          {/* ── Portrait + profile card ────────────────────────────── */}
           <div className="min-w-0 lg:col-span-5">
+            {/* The person behind the products. Deliberately outside the card
+                and modest in size — a signature, not a profile-page hero. */}
+            <Reveal delay={0.03}>
+              <div className="flex justify-center lg:justify-start">
+                <div className="group relative h-28 w-28 shrink-0 sm:h-32 sm:w-32">
+                  <div
+                    aria-hidden
+                    className="pointer-events-none absolute -inset-3 rounded-full bg-[radial-gradient(closest-side,rgba(62,224,242,0.16),transparent_72%)] opacity-80 transition-opacity duration-500 group-hover:opacity-100"
+                  />
+                  <div className="relative h-full w-full rounded-full border border-white/[0.12] bg-white/[0.03] p-[3px] shadow-glow backdrop-blur-sm transition-transform duration-500 ease-premium motion-safe:group-hover:scale-[1.03]">
+                    <Image
+                      src="/shahnihal-rahman-portrait.jpg"
+                      alt="Shahnihal Rahman"
+                      width={256}
+                      height={256}
+                      sizes="128px"
+                      className="h-full w-full rounded-full object-cover"
+                    />
+                  </div>
+                </div>
+              </div>
+            </Reveal>
+
             <Reveal delay={0.06}>
-              <div className="glass sticky top-24 overflow-hidden rounded-3xl">
+              <div className="glass sticky top-24 mt-6 overflow-hidden rounded-3xl">
                 <div className="relative border-b border-white/[0.07] p-6">
                   <div
                     aria-hidden

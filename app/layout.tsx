@@ -56,6 +56,11 @@ export const metadata: Metadata = {
     googleBot: { index: true, follow: true, 'max-image-preview': 'large' },
   },
   category: 'technology',
+  manifest: '/manifest.webmanifest',
+  appleWebApp: {
+    title: site.name,
+    statusBarStyle: 'black-translucent',
+  },
 };
 
 export const viewport: Viewport = {
