@@ -69,8 +69,9 @@ export type PreviewKind = 'commerce' | 'agents';
  *
  * `width` and `height` are the true intrinsic pixel dimensions of the file, so
  * next/image can reserve layout space and generate responsive sources without
- * guessing. Nothing here is upscaled, redrawn or recomposed: the only edit
- * applied to the source captures was trimming the browser scrollbar column.
+ * guessing. Nothing here is upscaled, redrawn or recomposed: the only edits
+ * applied to the source captures were trimming the browser chrome and the
+ * scrollbar column, so what remains is the product's own viewport.
  */
 export type ProjectShot = {
   /** Path under /public. */
@@ -135,7 +136,7 @@ export const projects: Project[] = [
     tagline: 'Find the right doctor. See a real appointment time. Skip the phone call.',
     problem:
       'Finding care usually means calling around, guessing who is available, and trusting an unverified listing. Patients cannot see a real appointment time before they commit.',
-    status: { label: 'In Development · Pilot', tone: 'building' },
+    status: { label: 'Live · Product in Active Development', tone: 'live' },
     summary:
       'Daktarji is a healthcare discovery and appointment platform designed around how patients actually discover doctors, clinics and healthcare services.',
     body: [
@@ -289,20 +290,21 @@ export const projects: Project[] = [
       { value: '20+', label: 'Cloud functions: callables, triggers, jobs' },
       { value: '3', label: 'Scheduled jobs keeping slots honest' },
     ],
-    links: [],
+    links: [{ label: 'Live Site', href: 'https://daktarji.com' }],
     linksNote:
-      'A pilot build is deployed to a private host while clinic data is being validated. Public links will be added here once the pilot opens up.',
+      'Daktarji is publicly accessible at daktarji.com. It remains an actively evolving product: modules are still being extended and refined.',
     proof: {
-      urlLabel: 'Daktarji · pilot build',
-      note: "Captured from the running pilot build. The interface still carries the product's earlier Medora branding — the rename to Daktarji is in progress.",
+      urlLabel: 'daktarji.com',
+      note: 'Captured from the live site at daktarji.com, under its own Daktarji branding. Used unretouched: the only edit was trimming the browser chrome and the scrollbar column.',
       shots: [
         {
-          src: '/work/daktarji-care-discovery.png',
-          label: 'Care discovery',
-          alt: 'Daktarji healthcare discovery platform interface — the "Start with what you need" care selection screen. General Physician is open for booking, with Pediatrics, Gynecology and Obstetrics, Dermatology, Dentistry and Orthopedics listed as coming soon.',
-          width: 1899,
-          height: 842,
-          caption: 'Care discovery — where a patient starts, before any doctor list appears.',
+          src: '/work/daktarji-home-find-care.png',
+          label: 'Find care',
+          alt: 'Daktarji home page — the headline "Find care. Pick a time. Done." over the line "Find trusted doctors and hospitals near you. Book an appointment in just a few taps." A Book Appointment button sits beside a Search by doctor name option, with the note "No account needed to look around." The header carries Find care, Find a doctor and How it works alongside a Kolkata location and Sign in. Below, a Browse by Department row lists General Physician, Pediatrics, Gynecology and Dermatology, each with the conditions it covers.',
+          width: 1901,
+          height: 869,
+          caption:
+            'The entry point — a patient states what they need and books a real time, before any doctor list appears.',
           stage: 'Discover',
         },
       ],
