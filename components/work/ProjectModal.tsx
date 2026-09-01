@@ -302,15 +302,34 @@ export function ProjectModal({
                   </div>
                 </Block>
 
-                <Block title="AI layer">
-                  <ul className="flex flex-wrap gap-1.5">
-                    {project.aiLayer.map((item) => (
-                      <li key={item}>
-                        <Tag>{item}</Tag>
-                      </li>
-                    ))}
-                  </ul>
-                </Block>
+                {/* Omitted entirely where a project has no AI layer — an empty
+                    block would imply one was expected. */}
+                {project.aiLayer.length ? (
+                  <Block title="AI layer">
+                    <ul className="flex flex-wrap gap-1.5">
+                      {project.aiLayer.map((item) => (
+                        <li key={item}>
+                          <Tag>{item}</Tag>
+                        </li>
+                      ))}
+                    </ul>
+                  </Block>
+                ) : null}
+
+                {/* Opened in a new tab rather than a nested viewer: a dialog
+                    inside a dialog is a focus-management trap. The in-page
+                    viewer lives on the project card. */}
+                {project.report ? (
+                  <Block title="Project report">
+                    <p className="mb-3 max-w-prose text-[0.8125rem] leading-relaxed text-ink-faint">
+                      {project.report.note}
+                    </p>
+                    <ActionLink href={project.report.src} external variant="ghost">
+                      Open the original PDF
+                      <ExternalIcon />
+                    </ActionLink>
+                  </Block>
+                ) : null}
 
                 <Block title="Links">
                   {project.links.length ? (

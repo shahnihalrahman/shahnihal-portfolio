@@ -108,6 +108,36 @@ export type ProductProof = {
   shots: ProjectShot[];
 };
 
+/**
+ * A page inside a report worth surfacing on the card. Clicking one opens the
+ * embedded viewer at exactly that page.
+ */
+export type ReportHighlight = {
+  /** 1-based page number in the source PDF. */
+  page: number;
+  label: string;
+  caption: string;
+};
+
+/**
+ * An original document that *is* the evidence for a project — used where the
+ * deliverable was a report rather than a running interface.
+ *
+ * The file under `src` is the unmodified original. `pages` is the real page
+ * count, read from the document itself, so the viewer can show "N of M"
+ * without first parsing the file.
+ */
+export type ProjectReport = {
+  /** Path under /public. The original file, unaltered. */
+  src: string;
+  title: string;
+  /** Verified page count of the source document. */
+  pages: number;
+  /** One-line provenance shown under the card. */
+  note: string;
+  highlights: ReportHighlight[];
+};
+
 export type Project = {
   id: string;
   index: string;
@@ -144,6 +174,11 @@ export type Project = {
   preview?: PreviewKind;
   /** Real captured interfaces. Takes precedence over `preview` wherever present. */
   proof?: ProductProof;
+  /**
+   * An original report document. Used where the artefact is a paper rather than
+   * a screen. Renders the embedded viewer instead of a blueprint preview.
+   */
+  report?: ProjectReport;
   accent: 'cyan' | 'blue' | 'violet';
 };
 
@@ -810,6 +845,152 @@ export const projects: Project[] = [
       'An internal system rather than a public product, so there is nothing to link yet. The scope above describes what runs today, and the stages that still pass through me are marked human-in-the-loop rather than presented as autonomous.',
     preview: 'influencer',
     accent: 'blue',
+  },
+
+  /* ─────────────────────────────  PROJECT 07  ───────────────────────────── */
+  /**
+   * Sourced entirely from the original dissertation PDF now shipped under
+   * /public/work.
+   *
+   * Every figure below is read off the notebook output captured on pages 25-26
+   * of the report: the k-sweep (k=1..29), the line "k=1 achieved highest
+   * accuracy of 99.26% on validation data", the split counts (1212 training /
+   * 135 validation / 450 testing) and the classification report whose overall
+   * test accuracy is 0.98 with per-class F1 between 0.95 and 1.00.
+   *
+   * The 90% in the report body is explicitly a worked example of the accuracy
+   * formula, not a result, so it is not used anywhere here.
+   *
+   * Two deliberate omissions:
+   *   - No neural networks, CNNs, SVM or Random Forest as work done. Those
+   *     appear only in the literature survey and as a planned comparison.
+   *   - No deployment or production claim. It is an academic project.
+   *
+   * Dataset wording is careful on purpose: the report text specifies MNIST,
+   * while the recorded run totals 1,797 images. Both facts are stated rather
+   * than reconciled by guessing.
+   */
+  {
+    id: 'digit-recognition',
+    index: '07',
+    name: 'Handwritten Digit Recognition',
+    category: 'Machine Learning · KNN · Computer Vision',
+    tagline: 'Where the ML foundation started — a classifier built and evaluated from first principles.',
+    problem:
+      'Reading a handwritten digit is trivial for a person and non-trivial for a program: the same digit varies in stroke, slant and thickness every time it is written, so the classifier has to work from similarity rather than rules.',
+    status: { label: 'Academic Project · 2023', tone: 'experimenting' },
+    summary:
+      'A handwritten digit classifier built on the k-nearest neighbours algorithm — my B.Tech dissertation at Techno India University, covering the full pipeline from preprocessing through parameter tuning to evaluation.',
+    body: [
+      'The classifier uses k-nearest neighbours over labelled handwritten digit images — the report specifies MNIST, and the recorded run works over 1,797 of them, split 1,212 training / 135 validation / 450 test. Each image is preprocessed (resized, pixel values normalised, converted to grayscale) then reduced to a feature vector of pixel intensity values. Classification compares a test vector against the stored training vectors by Euclidean distance and takes the majority class among the k closest.',
+      'The interesting part was parameter tuning. k was swept from 1 to 29: validation accuracy holds at 99.26% from k=1 through k=15, then decays to around 97% by k=29. k=1 scored highest, but classifying from a single neighbour is not a sound choice, so the model uses k=3 — which ties that top score without depending on one point. That reasoning, rather than the raw number, is the part I would defend in a review.',
+      'On the held-out test set the model reaches 0.98 accuracy, with per-class F1 between 0.95 and 1.00 — weakest on 8 and 9, which is what the confusion matrix would predict. Evaluation deliberately goes past accuracy to precision, recall and F1, because a single figure hides per-class failure. The report also documents the honest limits: KNN stores every training vector and computes distances at prediction time, so memory and latency grow with the dataset, and performance degrades as dimensionality rises.',
+    ],
+    role: [
+      'Problem Definition',
+      'ML Methodology',
+      'Python Implementation',
+      'Model Evaluation',
+      'Technical Writing',
+    ],
+    areas: [
+      { label: 'MNIST dataset acquisition', state: 'built' },
+      { label: 'Image preprocessing pipeline', state: 'built' },
+      { label: 'Grayscale & normalisation', state: 'built' },
+      { label: 'Feature extraction (pixel intensity)', state: 'built' },
+      { label: 'Train / test split', state: 'built' },
+      { label: 'KNN classifier in Python', state: 'built' },
+      { label: 'k-value tuning (k = 1…29)', state: 'built' },
+      { label: 'Accuracy, precision, recall, F1', state: 'built' },
+      { label: 'Per-class classification report', state: 'built' },
+      { label: 'Confusion matrix', state: 'built' },
+      { label: 'Results visualisation', state: 'built' },
+    ],
+    journey: {
+      title: 'Processing pipeline',
+      nodes: [
+        { label: 'Load Dataset' },
+        { label: 'Preprocessing' },
+        { label: 'Train-Test Split' },
+        { label: 'Feature Extraction' },
+        { label: 'KNN Model' },
+        { label: 'Prediction' },
+        { label: 'Evaluation' },
+        { label: 'Visualization' },
+      ],
+    },
+    architecture: {
+      title: 'How a digit gets classified',
+      nodes: [
+        { label: 'Digit image' },
+        { label: 'Preprocess', note: 'Resize · normalise · grayscale' },
+        { label: 'Feature vector', note: 'Pixel intensity values' },
+        { label: 'Euclidean distance' },
+        { label: 'k nearest neighbours', note: 'k = 3' },
+        { label: 'Majority class' },
+      ],
+    },
+    tech: [
+      {
+        label: 'Language & core',
+        items: ['Python', 'scikit-learn', 'NumPy'],
+      },
+      {
+        label: 'Imaging & data',
+        items: ['OpenCV', 'Pandas'],
+      },
+      {
+        label: 'Analysis & environment',
+        items: ['Matplotlib', 'Jupyter Notebook'],
+      },
+    ],
+    stackSource: 'declared',
+    stackNote:
+      "Read from the project's own dissertation: the libraries section names scikit-learn, NumPy, Matplotlib, Pandas and OpenCV, and the captured output shows the work running in a Jupyter notebook. Nothing is added beyond what the document shows.",
+    aiLayer: [],
+    facts: [
+      { value: '99.26%', label: 'Best validation accuracy, held from k=1 through k=15' },
+      { value: '0.98', label: 'Test-set accuracy across 450 held-out samples' },
+      { value: 'k = 3', label: 'Chosen over k=1: same score, without relying on one neighbour' },
+      { value: '15', label: 'Values of k swept, from 1 to 29' },
+    ],
+    links: [
+      {
+        label: 'GitHub',
+        href: 'https://github.com/shahnihalrahman/handwritten-digit-recognition-knn',
+      },
+    ],
+    linksNote:
+      'The full dissertation is readable in an embedded viewer on this card. Every figure quoted above comes from the notebook output captured on pages 25 and 26 — the k sweep, the split counts and the classification report.',
+    report: {
+      src: '/work/handwritten-digit-identification-knn.pdf',
+      title: 'Handwritten Digit Identification Using Machine Learning Approach',
+      pages: 30,
+      note: 'The original B.Tech dissertation submitted to Techno India University, Kolkata, May 2023. Unmodified.',
+      highlights: [
+        {
+          page: 22,
+          label: 'Working diagram',
+          caption: 'The pipeline, load through visualisation.',
+        },
+        {
+          page: 24,
+          label: 'Results & k tuning',
+          caption: 'Why k=3 was chosen over the higher-scoring k=1.',
+        },
+        {
+          page: 25,
+          label: 'Accuracy per k',
+          caption: 'The k sweep and the per-digit classification report.',
+        },
+        {
+          page: 26,
+          label: 'Confusion matrix',
+          caption: 'Where the classifier actually confuses digits.',
+        },
+      ],
+    },
+    accent: 'violet',
   },
 ];
 

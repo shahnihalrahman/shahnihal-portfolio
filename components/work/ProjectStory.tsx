@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import { ProjectPreview } from '@/components/work/Previews';
 import { ProductProofFrame } from '@/components/work/ProductProof';
+import { ReportFrame } from '@/components/work/ReportFrame';
 import {
   ActionButton,
   ActionLink,
@@ -182,19 +183,25 @@ export function ProjectStory({
         </div>
       ),
     },
-    {
-      key: 'ai',
-      label: 'AI layer',
-      render: () => (
-        <ul className="flex flex-wrap gap-1.5">
-          {project.aiLayer.map((a) => (
-            <li key={a}>
-              <Tag>{a}</Tag>
-            </li>
-          ))}
-        </ul>
-      ),
-    },
+    /* Skipped where there is no AI layer, so the beat rail never shows an
+       empty heading. */
+    ...(project.aiLayer.length
+      ? [
+          {
+            key: 'ai',
+            label: 'AI layer',
+            render: () => (
+              <ul className="flex flex-wrap gap-1.5">
+                {project.aiLayer.map((a) => (
+                  <li key={a}>
+                    <Tag>{a}</Tag>
+                  </li>
+                ))}
+              </ul>
+            ),
+          },
+        ]
+      : []),
   ];
 
   /* Track which beat is in view to drive the sticky panel. */
@@ -343,11 +350,13 @@ export function ProjectStory({
 }
 
 /**
- * Chooses between real product proof and a structural blueprint.
+ * Chooses between real product proof, an original report, and a blueprint.
  *
  * Products with a real capture get the interactive frame, which brings its own
- * chrome, caption and provenance note. Everything else keeps the wireframe
- * window and its narrative-beat indicator, still labelled as a rebuilt preview.
+ * chrome, caption and provenance note. A project whose artefact is a document
+ * gets the report frame and its embedded viewer. Everything else keeps the
+ * wireframe window and its narrative-beat indicator, still labelled as a
+ * rebuilt preview.
  */
 function StoryVisual({
   project,
@@ -362,6 +371,9 @@ function StoryVisual({
 }) {
   if (project.proof) {
     return <ProductProofFrame project={project} onOpen={onOpen} />;
+  }
+  if (project.report) {
+    return <ReportFrame project={project} report={project.report} />;
   }
   if (!project.preview) return null;
 

@@ -281,7 +281,55 @@ export const experience: Role[] = [
 
 /* ───────────────────────────  ACHIEVEMENTS  ─────────────────────────── */
 
-export const achievements = [
+/**
+ * Technical row — primary. Each card is evidence pulled from the actual
+ * project data in lib/projects.ts and lib/stack.ts, not a number invented to
+ * imitate the business row below. Wording is deliberately checked against what
+ * each project's `role`, `stackSource`, `tech` and `facts` actually support:
+ *
+ *   - "Built and deployed" (not "architected"): both products list
+ *     `stackSource: 'repository'`, carry a live `Live Site` link, and their
+ *     `role` arrays include Web Application Development / Platform Management
+ *     — build and deployment authorship, not a personal architecture claim
+ *     beyond what `role` states.
+ *   - The agentic-workflow line quotes the products' own framing ("an agent
+ *     rather than a chatbot") rather than asserting autonomy not marked in the
+ *     data — human-in-the-loop stages stay human-in-the-loop.
+ *   - The data-layer line and the "24" migrations figure are read directly
+ *     from the Truepost and Daktarji project entries, not estimated.
+ *   - The AI-assisted line names only the five tools lib/stack.ts tags
+ *     `shipped` (Claude, ChatGPT, Gemini, Cursor, Kiro), each used across at
+ *     least one project's `aiLayer` for implementation/debugging/
+ *     documentation. It does not claim all five were used on every project —
+ *     `aiLayer` varies per project and not all list every tool — and closes
+ *     with the `aiStatement` line from this file: architecture and final
+ *     judgement stay human.
+ */
+export const technicalAchievements = [
+  {
+    value: 'Full-Stack Products Shipped',
+    label:
+      'Daktarji and Truepost India — built and deployed end-to-end: frontend, backend, database and integrations, both live in production.',
+  },
+  {
+    value: 'Agentic AI Workflows',
+    label:
+      'Multi-stage agents for AI search-visibility analysis and influencer outreach — outreach and conversation stages kept human-in-the-loop.',
+  },
+  {
+    value: 'Backend & Data Architecture',
+    label:
+      'Firestore security rules on one product, Postgres row-level security and 24 versioned migrations on the other.',
+  },
+  {
+    value: 'AI-Assisted Engineering',
+    label:
+      'Claude, ChatGPT, Gemini, Cursor and Kiro used across AI-assisted development workflows for implementation, debugging and documentation — architecture and final decisions stay mine.',
+  },
+];
+
+/** Business/growth row — secondary. Unchanged from the original figures. */
+export const businessAchievements = [
   { value: '2.5M+', label: 'Monthly organic reach achieved at Truepost' },
   { value: '13K+', label: 'Followers built at Truepost' },
   { value: '₹0.033', label: 'Meta campaign CPE achieved' },
