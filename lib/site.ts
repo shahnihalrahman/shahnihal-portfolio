@@ -26,7 +26,7 @@ export const site = {
   ],
   location: 'India · Open to UAE / Gulf Opportunities',
   locationShort: 'India',
-  email: 'shahnihal135@gmail.com',
+  email: 'rahman@shahnihal.com',
   phone: '+91 8910404283',
   phoneHref: '+918910404283',
 
